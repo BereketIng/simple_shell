@@ -1,103 +1,98 @@
-./"This is the manpage of the SHELLY project at Holberton School
+B.\"Manpage for simple shell 
 
-.TH SHELLY "May 10th 2022" "SHELLY man page"
-
-.SH SYNOPSIS
-
-.B #include \fB"main.h"
-.B int main(void);
+.\"Created by Nwabueze Franklin et Asiwaju Ifeoluwa
+.TH HSH 1 "June 2022" "ALX Africa" "SHELL - Simple Shell man page"
 
 .SH NAME
+hsh\fR \- simple UNIX command interpreter
 
-.B SHELLY
-- Command line interpreter (Shell).
+.SH SYNOPSIS
+soda\fR [\fIfilename\fR]
+
+.SH COPYRIGHT
+hsh is Copyright (C) 2022 by Nwabueze Franklin and Ifeoluwa Asiwaju
 
 .SH DESCRIPTION
+hsh\fR is a sh-compatible command language interpreter that executes commands read from the standard input or from a file.
 
-.B \fBSHELLY\fR
+.SH ARGUMENTS
+If arguments remain after option processing, the first argument is assumed to be the name of a file containing shell commands. hsh reads and executes commands from this file, then exits. hsh exit status is the exit status of the last command executed in the script. If no commands are executed, the exit status is 0. An attempt is first made to open the file in the current directory, and, if no file is found, then the shell searches the directories in PATH for the script.
 
-The \fBSHELLY\fR utility is a command line interpreter that shall execute commands read from a command line string, the standard input.
+.SH INVOCATION
+Sodash is started with the standard input connected to the terminal (as determined by \fIisatty(3)\fR), the interactive mode is executed. Also non-interactively option can be executed.
+When Sodash is executed interactively, the prompt is displayed  \fI^-^ \fR to read any command, the command line argument is invoked and is treated as the first argument.
 
-The shell is a command that reads lines from either a file or the terminal, interprets them, and generally executes other commands. The shell is a command that reads lines from either a file or the terminal, interprets them, and generally executes other commands.
+.SH DEFINITIONS
+The following definitions are used throughout the rest of this document.
 
-The interactive mode,the prompt, ($), which is called the command prompt, is issued by the shell. While the prompt is displayed, the user can type a command. Shell reads the input after the user press Enter. It determines the command the user wants executed by looking at the first word of the input. The first word can refer to a command built in, a command with or without the path, or an executable file, while the rest of words means the command's arguments.
-Shell takes the input and separates the words (taking account the spaces and tabs like delimiters) into tokens.
+- \fIblank\fR
 
-With the command and arguments tokenized, the shell verifies that the commands exist and executes it. For this, it creates a child process with the system call fork to execute the process, while the parent process waits. At the end of the execution of the command by the child process, it terminates, returns to the parent process and continues the cycle generating a new prompt and waiting for another input.
+A space or tab.
 
-.SH BUILTIN COMMANDS
-These are the \fBBuiltin\fR commands of the SHELLY:
+- \fIword\fR
 
-\fBExit\fR	-Exits the shell.
-\fBEnv\fR	-Prints the environment variable.
+A sequence of characters considered as a single unit by the shell. Also known as a token\fR.
 
-.SH LEXICAL STRUCTURE
+- \fIname\fR
 
-SHELLY reads input taking account the special characters to break it into words like whitespaces (tabs and spaces), and ignores the following characters:
+A word consisting only of alphanumeric characters and underscores, and beginning with an alphabetic character or an underscore. Also referred to as an identifier\fR.
 
-\fBQuotation marks\fR
-These are used to ignore the special meaning of some characters such as whitespaces.
+control operator\fR
+A token that performs a control function. It is one of the following symbols:
+|| & && ; ;;
 
-\fBBackslash\fR
-A backslash keeps the literal meaning of some special characters, with the exception of \n that means new line.
+.SH Command Execution
+After a command has been split into words, if it results in a simple command and an optional list of arguments, the following actions are taken.
 
-\fBAlias\fR
-An alias is a name used to call an executable file with a shorter name (Some times is called a command with specific parameters). SHELLY checks the word to see if it matches an alias. If it does, it replaces it in the input with its meaning.
+If the command name contains no slashes, the shell attempts to locate it. If there exists a shell function by that name, that function is invoked. If the name does not match a function, the shell searches for it in the list of shell builtins. If a match is found, that builtin is invoked.
 
-\fBPath Search\fR
-When locating a command, the shell first looks to see if it has a builtin function by that name. If a builtin command is not found, one of two things happen:
-1. Command names containing a slash are simply executed without performing any searches.
-2. The shell searches each entry in PATH in turn for the command.  The value of the PATH variable should be a series of entries separated by colons.  Each entry consists of a directory name. 
+If the name is neither a shell function nor a builtin, and contains no slashes, \hsg\fR searches each element of the \fIPATH\fR for a directory containing an executable file by that name. \fIhsh\fR uses a hash table to remember the full pathnames of executable files. A full search of the directories in \fIPATH\fR is performed only if the command is not found in the hash table. If the search is unsuccessful, the shell searches for a defined shell function named "command not found". If that function exists, it is invoked with the original command and the original command's arguments as its arguments, and the function's exit status becomes the exit status of the shell. If that function is not defined, the shell prints an error message and returns an exit status of 127.
 
+If the search is successful, or if the command name contains one or more slashes, the shell executes the named program in a separate execution environment. Argument 0 is set to the name given, and the remaining arguments to the command are set to the arguments given, if any.
 
-.SH BRETURN VALUE
+.SH Environment
+\fBhsh\fR takes a copy from \fBBash\fR environment of the parent process where it was executed. The environment is an array of strings containing the variables in the format.
+When a program is invoked it is given an array of strings called the environment. This is a list of name-value pairs, of the form name=value.
 
-\fBCommand Exit Status\fR
-Each command has an exit status that can influence the behavior of other shell commands.  The paradigm is that a command exits with zero for normal or success, and non-zero for failure, error, or a false indication. The man page for each command should indicate the various exit codes and what they mean. Additionally, the builtin commands return exit codes, as does an executed shell function.
+The shell provides several ways to manipulate the environment. On invocation, the shell scans its own environment and creates a parameter for each name found, automatically marking it for export to child processes. Executed commands inherit the environment. The export and declare -x commands allow parameters and functions to be added to and deleted from the environment.
 
-.SH EXAMPLES
+.SH Exit Status
+Sodash\fR exit status of an executed command is the value returned by the waitpid system call or equivalent function. A command which exits with a zero exit status has succeeded. An exit status of zero indicates success. A non-zero exit status indicates failure.
 
-\fBOutput:\fR
-$ echo "qwerty" | ./hsh
-./hsh: 1: qwerty: not found
+If a command is not found, the child process created to execute it returns a status of 127.
 
-\fBInteractive mode:\fR
-$ ./hsh
-($) /bin/ls
-hsh main.c shell.c
-($)
-($) exit
-$
+All builtins return zero on success and one or two on incorrect usage (indicated by a corresponding error message).
 
-\fBNon-interactive mode:\fR
-$ echo "/bin/ls" | ./hsh
-hsh main.c shell.c test_ls_2
-$
-$ cat test_ls_2 | ./hsh
-hsh main.c shell.c test_ls_2
-hsh main.c shell.c test_ls_2
-$
+.SH BUILTINS
+The following builtin commands are supported:
 
-\fBCommands with the path:\fR
-($) /bin/ls
-barbie_j       env-main.c  exec.c  fork.c  pid.c  ppid.c    prompt   prompt.c  shell_0.3
+.B env
 
-\fBCommands without the path - no arguments:\fR
-($) ls
-barbie_j       env-main.c  exec.c  fork.c  pid.c  ppid.c    prompt   prompt.c  shell_0.3  
+- Print the current enviroment
 
-\fBCommands without the path - with arguments:\fR
-($) ls -l /tmp 
-total 20
--rw------- 1 ernestwambua ernestwambua   0 Dec  5 12:09 config-err-aAMZrR
-drwx------ 3 root   root   4096 Dec  5 12:09 systemd-private-062a0eca7f2a44349733e78cb4abdff4-colord.service-V7DUzr
-drwx------ 3 root   root   4096 Dec  5 12:09 systemd-private-062a0eca7f2a44349733e78cb4abdff4-rtkit-daemon.service-ANGvoV
-drwx------ 3 root   root   4096 Dec  5 12:07 systemd-private-062a0eca7f2a44349733e78cb4abdff4-systemd-timesyncd.service-CdXUtH
--rw-rw-r-- 1 kinyarasam kinyarasam   0 Dec  5 12:09 unity_support_test.0
+.B setenv [Variable] [Value]
 
-\fBBuiltin:\fR
-($) exit
-$
+- Creates a new environment variab;e or modifies an existing one.
+
+.B unsetenv [Variable]
+
+- Removes an environmental variable.
+
+.B exit [Status]
+
+- Exit the shell
+
+.B cd [Directory]
+
+- Changes the current directory of the process to DIRECTORY.  If no argument is given, the command is interpreted as cd $HOME. If the argument - is given, the command is interpreted as cd $OLDPWD. The environment variables PWD and OLDPWD are updated after a change of directory.
+
+.B help
+
+- Print help message of builtin command
+
+.SH SEE ALSO
+access(2), chdir(2), execve(2), _exit(2), exit(3), fflush(3), fork(2), free(3), isatty(3), getcwd(3), malloc(3), open(2), read(2), sh(1), signal(2), stat(2), wait(2), write(2)
+Sodash\fR takes basic functionality of the \fBsh\fR shell. This man page is based on the man page bash(1)
 
 .SH AUTHORS
-Written by Ernest Wambua and Kinyara Samuel.
+Nwabueze Franklin and Asiwaju Ifeoluwa

@@ -11,6 +11,7 @@ void aux_help_env(void)
 	write(STDOUT_FILENO, help, _strlen(help));
 	help = "Print the enviroment of the shell.\n";
 	write(STDOUT_FILENO, help, _strlen(help));
+
 }
 /**
  * aux_help_setenv - Help information for the builtin setenv
@@ -40,13 +41,14 @@ void aux_help_unsetenv(void)
 	write(STDOUT_FILENO, help, _strlen(help));
 }
 
+
 /**
  * aux_help_general - Entry point for help information for the help builtin
  * Return: no return
  */
 void aux_help_general(void)
 {
-	char *help = "($) bash, version 1.0(1)-release\n";
+	char *help = "^-^ bash, version 1.0(1)-release\n";
 
 	write(STDOUT_FILENO, help, _strlen(help));
 	help = "These commands are defined internally.Type 'help' to see the list";

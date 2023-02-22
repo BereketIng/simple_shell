@@ -1,45 +1,47 @@
 #include "shell.h"
-
 /**
- * main - entry point
- * @ac: arg count
- * @av: arg vector
- *
- * Return: 0 on success, 1 on error
+ * main - simple shell
+ * @name_file: is the name of file executable
+ * @ac: is the number of arguments
+ * Return: always 0.
  */
-int main(int ac, char **av)
+int main(int ac __attribute__((unused)), char **name_file)
 {
-	info_t info[] = { INFO_INIT };
-	int fd = 2;
+	char *buffer = NULL, **arg, *copy = NULL, *token;
+	size_t bufsize = 0;
+	int status = 0, cont = 0, cont_prom = 1;
 
-	asm ("mov %1, %0\n\t"
-			"add $3, %0"
-			: "=r" (fd)
-			: "r" (fd));
-
-	if (ac == 2)
-	{
-		fd = open(av[1], O_RDONLY);
-		if (fd == -1)
+	do	{
+		if (isatty(fileno(stdin)))
 		{
-			if (errno == EACCES)
-				exit(126);
-			if (errno == ENOENT)
-			{
-				_eputs(av[0]);
-				_eputs(": 0: Can't open ");
-				_eputs(av[1]);
-				_eputchar('\n');
-				_eputchar(BUF_FLUSH);
-				exit(127);
-			}
-			return (EXIT_FAILURE);
+			printf("simple_shell-> ");
 		}
-		info->readfd = fd;
-	}
-	populate_env_list(info);
-	read_history(info);
-	hsh(info, av);
-
-	return (EXIT_SUCCESS);
+		if (getline(&buffer, &bufsize, stdin) == EOF)
+		{
+			free(buffer);
+			if (isatty(fileno(stdin)))
+				printf("\n");
+			exit(status);
+		}
+		copy = _strdup(buffer);
+		token = strtok(copy, " \t\n");
+		if (!token)
+		{
+			cont_prom++;
+			free(copy);
+			continue;
+		}
+		while (token != NULL)
+		{
+			token = strtok(NULL, " \t\n");
+			cont++;
+		}
+		arg = get_arguments(buffer, cont);
+		status = execute(arg, copy, buffer, name_file, cont_prom);
+		free(copy);
+		free(buffer);
+		buffer = NULL;
+		cont_prom++;
+	} while (TRUE);
+	return (status);
 }
